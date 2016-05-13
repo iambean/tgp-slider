@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="./assets/jquery-2.2.2.js"></script>
+    <script src="../StaticSlider.js"></script>
+    <style>
+        html,body{padding:0;margin:0;widtth:100%;height:100%;}
+        .wp{ margin-left:100px; margin-top: 50px ;}
+        #wrapper1, #wrapper2,#wrapper3,#wrapper4,#wrapper5,#wrapper6,#wrapper7{width:60%;min-width:718px;height:218px;background:#F3A0A0;}
+        #wrapper2{width : 40%;}
+        /*#wrapper6{height: auto;}*/
+
+         /*前一项 后一项button*/
+        .tgp-slider .slide-btn-pre, 
+        .tgp-slider .slide-btn-next,
+        .tgp-slider .btn-pre,
+        .tgp-slider .btn-next{position:absolute;overflow:hidden;top:50%;cursor: pointer;
+            z-index:10;text-align:center;outline: 1px solid rgba(255, 255, 255, 0.05);outline-offset: -1px; }
+
+        .tgp-slider .slide-btn-pre, 
+        .tgp-slider .slide-btn-next{background: rgba(38, 54, 76, 0.20);width:30px;height:78px;margin-top:-39px;}
+
+        .tgp-slider .slide-btn-pre:hover, 
+        .tgp-slider .slide-btn-next:hover{ background:rgba(38, 54, 76, 0.40);}
+
+        .tgp-slider .slide-btn-pre:before, 
+        .tgp-slider .slide-btn-next:before,
+        .tgp-slider .btn-pre:before,
+        .tgp-slider .btn-next:before{position:absolute; content:""; width:20px;height:20px; display:block; top:50%; margin-top:-10px;}
+
+        .tgp-slider .slide-btn-pre{left:1px;}
+        .tgp-slider .slide-btn-next{right:1px;}
+
+        .tgp-slider .slide-btn-pre:before,
+        .tgp-slider .btn-pre:before{border-left:2px solid rgba(255,255,255,.3);border-bottom:2px solid rgba(255,255,255,.3);-webkit-transform:rotate(45deg);left:10px;}
+
+        .tgp-slider .slide-btn-next:before,
+        .tgp-slider .btn-next:before{border-right:2px solid rgba(255,255,255,.3);border-bottom:2px solid rgba(255,255,255,.3);-webkit-transform:rotate(-45deg);right:10px;}
+
+        .tgp-slider .slide-btn-pre:hover:before,
+        .tgp-slider .slide-btn-next:hover:before,
+        .tgp-slider .btn-pre:hover:before,
+        .tgp-slider .btn-next:hover:before{border-color: rgba(255, 255, 255, 0.50);}
+
+        .tgp-slider .slide-btn-pre.disabled, 
+        .tgp-slider .slide-btn-next.disabled{background:rgba(0, 0, 0, 0.2);}
+
+        .tgp-slider .slide-btn-pre.disabled:before, 
+        .tgp-slider .slide-btn-next.disabled:before,
+        .tgp-slider .btn-pre.disabled:before,
+        .tgp-slider .btn-next.disabled:before{opacity:0.5}
+
+        .tgp-slider .btn-pre,
+        .tgp-slider .btn-next{height: 33px;margin-top: -16px;}
+
+        .tgp-slider .btn-pre{left: 0;background-image: -webkit-linear-gradient(0deg,rgba(0,0,0,0.8),rgba(0,0,0,0))}
+        .tgp-slider .btn-next{right: 0;background-image:-webkit-linear-gradient(180deg,rgba(0,0,0,0.8),rgba(0,0,0,0))}
+
+
+        /*thumb缩略图*/
+        .tgp-slider .focusthumb-wp{position: relative; width:100%;height:33px;  margin:0 auto;margin-top:-33px; text-align: center;z-index:10;}
+
+        /*默认缩略图*/
+        .tgp-slider .focusthumb{width:480px; background:rgba(0, 0, 0, 0.6);
+            position:absolute;top:0;left:50%;margin-left:-240px;z-index:10;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-justify-content:center;-webkit-box-pack:center;}
+        .tgp-slider .focusthumb a{display:block;height:27px; width:92px;margin:3px; overflow: hidden;}
+        .tgp-slider .focusthumb a img{width:100%; height:100%;}
+        .tgp-slider .focusthumb .cur, 
+        .tgp-slider .focusthumb a:hover{outline:#fff solid 2px;outline-offset: -1px;}
+
+        /*thumb小圆点*/
+        .tgp-slider .thumb-dot{display:block; text-align:center; background: none; top:auto;bottom:5px;}
+        .tgp-slider .thumb-dot a{width: 8px; height: 8px;display:inline-block; line-height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.6); margin: 0 2px;}
+        .tgp-slider .thumb-dot a:hover{background-color: rgba(255,255,255,0.8);outline: none;outline-offset:0;}
+        .tgp-slider .thumb-dot a.cur { background-color: #fff; outline: none;outline-offset:0;}
+        .tgp-slider .thumb-dot a img,.tgp-slider .thumb-dot a span{display:none;}
+
+        /*thumb文字*/
+        .tgp-slider .thumb-txt{height:33px;line-height: 33px; background: rgba(0, 0, 0, 0.4);}
+        .tgp-slider .thumb-txt a{width:20%; line-height: 33px; height:33px;margin: 0 1px 0 0;background: rgba(0, 0, 0, 0.3); text-decoration: none;}
+        .tgp-slider .thumb-txt a:last-child{margin-right:0;}
+        .tgp-slider .thumb-txt a:hover{outline:none; outline-offset:0;background-color:#0095ff;}
+        .tgp-slider .thumb-txt a span{color:rgba(255,255,255,.5);white-space: nowrap; overflow: hidden; text-overflow: ellipsis;display: block;
+            padding: 0 5px; font-size: 12px; text-align: center;}
+        .tgp-slider .thumb-txt a:hover span{color:rgba(255,255,255,.8)}
+        .tgp-slider .thumb-txt a.cur,.tgp-slider .thumb-txt a.cur:hover{ background-color:#0095ff;outline: none;outline-offset:0;}
+        .tgp-slider .thumb-txt a.cur span,.tgp-slider .thumb-txt a.cur:hover span{  color:#fff;}
+        .tgp-slider .thumb-txt a img{display:none;}
+
+        /*缩略图画廊*/
+        .tgp-slider .thumb-gallery{}
+
+        /*.tgp-slider .focusthumb-wp{margin-top: 0;}*/
+
+        .tgp-slider .thumb-gallery{width: 100%;position: static;left: 0;margin-left: 0;-webkit-justify-content:flex-start;-webkit-box-pack:start;}
+        .tgp-slider .thumb-gallery a{position: relative;overflow: visible;}
+        .tgp-slider .thumb-gallery a:before{content: "";position: absolute;left: 50%;margin-left: -4px;top: -13px;width: 0;height: 0;font-size: 0;overflow: hidden;border: 6px solid;border-color: transparent transparent #0095ff transparent;visibility: hidden;}
+        .tgp-slider .thumb-gallery .cur:before,
+        .tgp-slider .thumb-gallery a:hover:before{visibility: visible;}
+        .tgp-slider .thumb-gallery .cur,
+        .tgp-slider .thumb-gallery a:hover{outline:2px solid #0095ff}
+        .tgp-slider .thumb-gallery .video:after{content: "";position: absolute;width: 86px;height: 86px;left: 50%;top: 50%;margin-left: -43px;margin-top: -43px;background-image:url(./assets/images/icon-player.png); -webkit-transform:scale(0.3);}        
+
+        /*轮播图默认3D效果*/
+        .tgp-slider {position: relative;overflow:hidden;height: 100%;width: 100%;}
+        .tgp-slider ul{padding:0;margin:0; list-style: none;left:0;top:0;position:relative;width:100%;height:100%;}
+        .tgp-slider ul.slider-viewport{position:relative;width:100%;height:100%;}
+        .tgp-slider li{padding:0;margin:0;text-align: center;vertical-align: top;position:absolute;}
+        .tgp-slider li.left-hider{z-index:1;transform:scale(.6) translate(-200%,0);}
+        .tgp-slider li.lefter{z-index:3;text-align:left;transform:scale(.8) translate(-80%,0);}
+        .tgp-slider li.current{z-index:5;transform:scale(1) translate(0,0);}
+        .tgp-slider li.righter{z-index:3;text-align: right;transform:scale(.8) translate(80%,0);}
+        .tgp-slider li.right-hider{z-index:1;transform:scale(.6) translate(200%,0);}
+        
+        .tgp-slider .tgp-figure{display: inline-block; margin: 0 auto;border:none;vertical-align: top;font-size: 0;background-size: contain;background-position: 50% 50%;background-repeat:no-repeat;}
+        .tgp-slider .tgp-figure:before { box-shadow: none;}
+
+        /***  蒙层  ***/
+        .tgp-slider .righter .tgp-figure:after, 
+        .tgp-slider .lefter .tgp-figure:after,
+        .tgp-slider .right-hider .tgp-figure:after,
+        .tgp-slider .left-hider .tgp-figure:after
+
+        {
+            content: "";
+            background: rgba(0, 0, 0, 0.60);
+            z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .tgp-slider .right-hider .tgp-figure:after,
+        .tgp-slider .left-hider .tgp-figure:after{ background: rgba(0, 0, 0, 0.8);}
+
+        /*轮播图片如果是视频*/
+        .tgp-slider .tgp-figure.video{position: relative;}
+        .tgp-slider .tgp-figure.video:before{content: "";position: absolute;width: 86px;height: 86px;left: 50%;top: 50%;margin-left: -43px;margin-top: -43px;background-image:url(./assets/images/icon-player.png); }
+
+        /*轮播图带标题文字*/
+        .tgp-slider .tgp-figure-title{position: absolute;width: 100%;font-size:13px;line-height: 28px;left:0;bottom:0;text-align:center;color: #fff;background-color: rgba(0,0,0,0.7);z-index: 1;white-space: nowrap;overflow: hidden;text-overflow:ellipsis;}    
+
+        /*轮播图单张图片效果*/
+        .tgp-slider.single{}
+        .tgp-slider.single li{width: 100%;height: 100%;left: 0!important;margin: 0!important}
+        .tgp-slider.single .lefter,
+        .tgp-slider.single .righter,
+        .tgp-slider.single .left-hider,
+        .tgp-slider.single .right-hider{transform:none;}
+        .tgp-slider.single .tgp-figure,
+        .tgp-slider.single .tgp-figure img{width: 100%;}
+
+        /*轮播图gallery效果*/
+        .tgp-slider.gallery{}
+        /*.tgp-slider.gallery .slider-viewport{display: -webkit-box;}*/
+        .tgp-slider.gallery li.left-hider{transform:scale(1) translate(-200%,0);}
+        .tgp-slider.gallery li.lefter{text-align:left;transform:scale(1) translate(-100%,0);}
+        .tgp-slider.gallery li.current{transform:scale(1) translate(0,0);}
+        .tgp-slider.gallery li.righter{text-align: right;transform:scale(1) translate(100%,0);}
+        .tgp-slider.gallery li.right-hider{transform:scale(1) translate(200%,0);}
+        /*.tgp-slider.gallery .tgp-figure:after{display: none;}*/
+
+
+    </style>
+</head>
+<body>
+    <h1>一些demo：</h1>
+    <div id="wrapper1" class="wp"></div>
+
+    <div id="wrapper2" class="wp"></div>
+
+
+    <div id="wrapper3" class="wp">
+        <div id="TGP_slider_2" class="tgp-slider has-title">
+            <div tag="prev" class="slide-btn-pre" style="" href="#"></div>
+            <div tag="next" class="slide-btn-next" style="" href="#"></div>
+            <ul tag="viewport" class="slider-viewport">
+                <li class="lefter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="1" data-type="event"><img class="ads-img" src="./assets/images/b.jpg"><span class="tgp-figure-title">这里放标题</span></a>
+                </li>
+                <li class="current">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="2" data-type="event"><img class="ads-img" src="./assets/images/c.jpg"><span class="tgp-figure-title">这里放标题</span></a>
+                </li>
+                <li class="righter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="3" data-type="link"><img class="ads-img" src="./assets/images/d.jpg"><span class="tgp-figure-title">这里放标题</span></a>
+                </li>
+                <li class="right-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"><span class="tgp-figure-title">这里放标题</span></a>
+                </li>
+                <li class="left-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"><span class="tgp-figure-title">这里放标题</span></a>
+                </li>
+            </ul>
+            <div tag="nav_area" class="focusthumb-wp" style="">
+                <div tag="nav_prev" class="btn-pre" href="#"></div>
+                <div tag="nav_next" class="btn-next" href="#"></div>
+                <div tag="nav_viewport" class="focusthumb thumb-dot">
+                    <a href="#" hidefocus="" data-index="0" class="">
+                        <img src="./assets/images/a.jpg">
+                        <span>第一个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="1" class="">
+                        <img src="./assets/images/b.jpg">
+                        <span>第二个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="2" class="cur">
+                        <img src="./assets/images/c.jpg">
+                        <span>第三个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="3" class="">
+                        <img src="./assets/images/d.jpg">
+                        <span>第四个</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div id="wrapper5" class="wp">
+        <div id="TGP_slider_2" class="tgp-slider">
+            <div tag="prev" class="slide-btn-pre" style="" href="#"></div>
+            <div tag="next" class="slide-btn-next" style="" href="#"></div>
+            <ul tag="viewport" class="slider-viewport">
+                <li class="lefter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="1" data-type="event"><img class="ads-img" src="./assets/images/b.jpg"></a>
+                </li>
+                <li class="current">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="2" data-type="event"><img class="ads-img" src="./assets/images/c.jpg"></a>
+                </li>
+                <li class="righter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="3" data-type="link"><img class="ads-img" src="./assets/images/d.jpg"></a>
+                </li>
+                <li class="right-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"></a>
+                </li>
+                <li class="left-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"></a>
+                </li>
+            </ul>
+            <div tag="nav_area" class="focusthumb-wp">
+                <div tag="nav_prev" class="btn-pre" href="#"></div>
+                <div tag="nav_next" class="btn-next" href="#"></div>
+                <div tag="nav_viewport" class="focusthumb thumb-center">
+                    <a href="#" hidefocus="" data-index="0" class="">
+                        <img src="./assets/images/a.jpg">
+                        <span>第一个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="1" class="">
+                        <img src="./assets/images/b.jpg">
+                        <span>第二个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="2" class="cur">
+                        <img src="./assets/images/c.jpg">
+                        <span>第三个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="3" class="">
+                        <img src="./assets/images/d.jpg">
+                        <span>第四个</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="wrapper6" class="wp">
+        <div class="tgp-slider gallery">
+            <div tag="prev" class="slide-btn-pre" style="" href="#"></div>
+            <div tag="next" class="slide-btn-next" style="" href="#"></div>
+            <!-- 
+            交互说明：
+            1，根据li计算ul的宽度，左右滑动的时候移动ul
+            2，current图片相对于tgp-slider水平居中 
+            -->
+            <ul tag="viewport" class="slider-viewport">
+                <li class="lefter">
+                    <a class="tgp-figure video" href="http://www.baidu.com" data-index="1" data-type="event"><img class="ads-img" src="./assets/images/b.jpg"></a>
+                </li>
+
+                <li class="current">
+                    <!-- 如果是视频需要刚给figure追加video -->
+                    <a class="tgp-figure video" href="http://www.baidu.com" data-index="2" data-type="event"><img class="ads-img" src="./assets/images/c.jpg"></a>
+                </li>
+                <li class="righter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="3" data-type="link"><img class="ads-img" src="./assets/images/d.jpg"></a>
+                </li>
+                <li class="right-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"></a>
+                </li>
+                <li class="left-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event"><img class="ads-img" src="./assets/images/a.jpg"></a>
+                </li>
+            </ul>
+            <div tag="nav_area" class="focusthumb-wp">
+                <div tag="nav_prev" class="btn-pre" href="#"></div>
+                <div tag="nav_next" class="btn-next" href="#"></div>
+                <div tag="nav_viewport" class="focusthumb thumb-gallery">
+                    <a href="#" hidefocus="" data-index="0" class="">
+                        <img src="./assets/images/a.jpg">
+                        <span>第一个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="1" class="">
+                        <img src="./assets/images/b.jpg">
+                        <span>第二个</span>
+                    </a>
+                    <!-- 如果是视频给a追加video -->
+                    <a href="#" hidefocus="" data-index="2" class="video cur">
+                        <img src="./assets/images/c.jpg">
+                        <span>第三个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="3" class="">
+                        <img src="./assets/images/d.jpg">
+                        <span>第四个</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="wrapper7" class="wp">
+        <div class="tgp-slider gallery">
+            <div tag="prev" class="slide-btn-pre" style="" href="#"></div>
+            <div tag="next" class="slide-btn-next" style="" href="#"></div>
+            <!-- 
+            交互说明：
+            1，根据li计算ul的宽度，左右滑动的时候移动ul
+            2，current图片相对于tgp-slider水平居中 
+            -->
+            <ul tag="viewport" class="slider-viewport">
+                <li class="lefter">
+                    <a class="tgp-figure video" href="http://www.baidu.com" data-index="1" data-type="event" style="background-image:url(./assets/images/b.jpg)"></a>
+                </li>
+
+                <li class="current">
+                    <!-- 如果是视频需要刚给figure追加video -->
+                    <a class="tgp-figure video" href="http://www.baidu.com" data-index="2" data-type="event" style="background-image:url(./assets/images/c.jpg)"></a>
+                </li>
+                <li class="righter">
+                    <a class="tgp-figure" href="http://www.baidu.com" data-index="3" data-type="link" style="background-image:url(./assets/images/a.jpg)"></a>
+                </li>
+                <li class="right-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event" style="background-image:url(./assets/images/d.jpg)"></a>
+                </li>
+                <li class="left-hider">
+                    <a class="tgp-figure" href="#" data-index="0" data-type="event" style="background-image:url(./assets/images/c.jpg)"></a>
+                </li>
+            </ul>
+            <div tag="nav_area" class="focusthumb-wp">
+                <div tag="nav_prev" class="btn-pre" href="#"></div>
+                <div tag="nav_next" class="btn-next" href="#"></div>
+                <div tag="nav_viewport" class="focusthumb thumb-gallery">
+                    <a href="#" hidefocus="" data-index="0" class="">
+                        <img src="./assets/images/a.jpg">
+                        <span>第一个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="1" class="">
+                        <img src="./assets/images/b.jpg">
+                        <span>第二个</span>
+                    </a>
+                    <!-- 如果是视频给a追加video -->
+                    <a href="#" hidefocus="" data-index="2" class="video cur">
+                        <img src="./assets/images/c.jpg">
+                        <span>第三个</span>
+                    </a>
+                    <a href="#" hidefocus="" data-index="3" class="">
+                        <img src="./assets/images/d.jpg">
+                        <span>第四个</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<h1>一个复杂的例子：</h1>-->
+    <!--<div id="content2"></div>-->
+<script>
+
+    var ss1 = new StaticSlider($('#wrapper1').get(0),{
+        contentStyles : {
+            type : 'three-cards', //3张卡片切换的风格,默认为单张从左往右切换效果
+            config : {      //选定风格的相关特定配置项，
+                mainCardWidth : 718,
+//                mainCardHeight : 300,
+            }
+        },
+        navStyles : {
+            type : 'title', //thumb(default)|title|disc
+            showPrevAndNext : false//'false' to default.
+        },
+        customizeClass : 'lol-slider',
+//        showPrevAndNext : true,
+        autoPlay : false,
+        duration : 200,
+        delay : 3000,
+        onItemClick : function(e, item, index, ele){
+//            console.log('on item click.', item, index, ele);
+        },
+        beforeSlide : function(item, index){
+//            console.log("before slide", index, item);
+        },
+        afterSlide : function(item, index){
+//            console.log("after slide", index, item);
+        },
+        items : [
+            {title : '一',image : './assets/images/a.jpg'},
+            {title : '二',image : './assets/images/b.jpg'},
+            {title : '三',image : './assets/images/c.jpg'},
+            {title : '四',image : './assets/images/d.jpg'},
+            {title : '五',image : './assets/images/e.jpg'},
+            {title : '六',image : './assets/images/f.png'},
+            {title : '七',image : './assets/images/g.jpeg'},
+            {title : '八',image : './assets/images/h.jpg'},
+            {title : '九',image : './assets/images/i.png'},
+            {title : '十',image : './assets/images/j.jpg'},
+            {title : '十一',image : './assets/images/k.png'},
+            {title : '十二',image : './assets/images/l.jpg'},
+            {title : '十三',image : './assets/images/m.png'},
+            {title : '十四',image : './assets/images/n.png'}
+        ],
+//        items : [{
+//            title : '第一个',
+//            image : './assets/images/0.jpg',
+//            target : 'http://www.qq.com'
+//        },{
+//            title : '第二个',
+//            image : './assets/images/1.jpg',
+//            target : 'http://www.baidu.com'
+//        },{
+//            title : '第三个',
+//            image : './assets/images/2.jpg',
+//            target : 'http://www.baidu.com'
+//        },{
+//            title : '第四个',
+//            image : './assets/images/3.jpg',
+//            target : 'http://www.baidu.com'
+//        }]
+    });
+
+    var ss2 = new StaticSlider($('#wrapper2').get(0),{
+        contentStyles : {
+            type : 'single',
+            config : {      //选定风格的相关特定配置项，
+                mainCardWidth : 718,
+//                mainCardHeight : 300,
+            }
+        },
+        navStyles : {
+           type : 'disc', //thumb(default)|title|disc|none
+            showPrevAndNext :true//'false' to default.
+        },
+        customizeClass : 'lol-slider',
+//        showPrevAndNext : true,
+        autoPlay : false,
+        duration : 500,
+        delay : 3000,
+        onItemClick : function(e, item, index, ele){
+            console.log('on item click.', item, index, ele);
+        },
+        items : [{
+            title : '第一个',
+            image : './assets/images/a.jpg',
+        },{
+            title : '第二个',
+            image : './assets/images/b.jpg',
+        },{
+            title : '第三个',
+            image : './assets/images/c.jpg',
+        },{
+            title : '第四个',
+            image : './assets/images/d.jpg',
+            target : 'http://www.baidu.com'
+        }]
+    });
+
+</script>
+</body>
+</html>
