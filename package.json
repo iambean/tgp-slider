@@ -1,5 +1,5 @@
 {
-  "name": "TGP-Slider",
+  "name": "@tencent/TGP-Slider",
   "version": "0.2.0",
   "description": "A slider component for TGP.",
   "main": "index.js",

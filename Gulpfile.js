@@ -20,7 +20,7 @@ gulp.task('default', function(){
             presets: [babel_es2015]
         }))
         .pipe(gulp.dest('./dist'))
-        //TODO:for job with svn path.
+        //TODO: work with svn path.
         .pipe(gulp.dest('../../cdn/slider'));
 });
 

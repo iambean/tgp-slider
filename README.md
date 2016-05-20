@@ -1,63 +1,121 @@
-/**
-  * @title : 轮播组件
-  * @desc : 适用于在TGP内使用的轮播图组件，定制化。
-  *         将TGP项目中所有用到的轮播组件（焦点图、轮播图等）全部抽象化成轮播组件，同时将各种产品形态的样式，
-  *        如单张从左向右、三张卡片切换、5张卡片立体切换等效果具体枚举成各种风格由'style'参数控制。
-  *
-  * @author : beanmao@tencent.com
-  * @date : 2016/3/16
-  */
+# TGP轮播图组件
 
-var StaticSlider = require("StaticSlider");
- *  var ss = new StaticSlider(document.querySelector("#testDiv"), {
- *          //主区域UI风格相关
- *          contentStyles : {
- *              type : '3cards', //3张卡片切换的风格,默认为单张从左往右切换效果
- *              config : {      //选定风格的相关特定配置项，
- *                  mainCardWidth : 360,
- *                  mainCardHeight : 200,
- *              }
- *          },
- *          showPrevAndNext : true, //是否展示前后导航的按钮（如果条件满足）
- *          //导航栏（如缩略图）UI风格相关
- *          navStyles : {
- *              type : 'thumb', //tab切换的风格，默认thumb缩略图模式。可选'none'/'thumb'/'title'/'disc'
- *              showPrevAndNext : false //是否在导航条两侧展示前进后退按钮
- *          },
- *
- *          //每一项的公共点击行为，如数据上报等。this为<li>的element
- *          onItemClick : function(e, item, index){
- *              console.log("每个item点击都会执行， 并且是最先执行的。");
- *          },
- *
- *          //发生滑动之前的响应函数，如统计曝光率。注意当viewport的items个数>1时，
- *          //比如'3cards'时，就同时有3个响应，如果需要看是否focus的那个，则要判断参数index和currentIndex对比
- *          onSlide : function(item, index){
- *              console.log('即将发生滑动的是'， item);
- *          },
- *
- *          items : [{
- *              title : '新英雄“烬”介绍',
- *              image : 'http://p3.pstatp.com/large/1090001447585aaec8f',
- *              thumb : 'http://p3.pstatp.com/large/1090001447585aaec8f',
- *              // onClick表示自定义点击事件，如果同时有target选项，那么先执行onClick，结束就跳转到target。this为<li>的element.
- *              onClick : function(e, item, index){
- *                  console.log("点击的元素是",li, 点击坐标点是, e.pageX, e.pageY);
- *              }
- *          },{
- *              title : '暗裔剑魔 亚托克斯',
- *              image : 'http://ossweb-img.qq.com/images/lol/web201310/skin/big266000.jpg',
- *              thumb : 'http://p3.pstatp.com/large/1090001447585aaec8f',
- *              target : 'http://www.qq.com'
- *          },{
- *              title : '九尾妖狐 阿狸',
- *              image : 'http://ossweb-img.qq.com/images/lol/web201310/skin/big103000.jpg',
- *              thumb : 'http://p3.pstatp.com/large/1090001447585aaec8f',
- *              target : 'http://www.qq.com'
- *          },{
- *              title : '暗影之拳 阿卡丽',
- *              image : 'http://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
- *              thumb : 'http://p3.pstatp.com/large/1090001447585aaec8f',
- *              target : 'http://www.qq.com'
- *          }]
- *      });
+- 介绍：适用于在TGP内使用的轮播图组件，定制化。
+将TGP项目中所有用到的轮播效果抽象化成组件，同时将各种产品形态的样式，
+如单张从左向右、三张卡片切换、5张卡片立体切换等效果具体枚举成各种风格由'style'参数控制。
+- 作者 : beanmao@tencent.com
+- 日期 : 2016/3/16
+
+e.g:
+
+```javascript
+    let wp1 =  document.getElementById('wrapper1'),
+        ss1 = new StaticSlider(wp1,{
+           contentStyles : {
+               type : 'three-cards', //3张卡片切换的风格,默认为单张从左往右切换效果
+               config : {      //选定风格的相关特定配置项，
+                   mainCardWidth : 718,
+   //                mainCardHeight : 300,
+               },
+               showPrevAndNext : true
+           },
+           navStyles : {
+               type : 'title', //thumb(default)|title|disc
+               showPrevAndNext : false//'false' to default.
+           },
+   //        customizeClass : 'lol-slider',
+           autoPlay : false,
+           duration : 200,
+           delay : 3000,
+           onItemClick : function(e, item, index, ele){
+   //            console.log('on item click.', item, index, ele);
+           },
+           beforeSlide : function(item, index){
+   //            console.log("before slide", index, item);
+           },
+           afterSlide : function(item, index){
+   //            console.log("after slide", index, item);
+           },
+           items : [
+               {title : '一',image : './assets/images/a.jpg'},
+               {title : '二',image : './assets/images/b.jpg'},
+               {title : '三',image : './assets/images/c.jpg'},
+               {title : '四',image : './assets/images/d.jpg'},
+               {title : '五',image : './assets/images/e.jpg'},
+               {title : '六',image : './assets/images/f.png'},
+               {title : '七',image : './assets/images/g.jpeg'},
+               {title : '八',image : './assets/images/h.jpg'},
+               {title : '九',image : './assets/images/i.png'},
+               {title : '十',image : './assets/images/j.jpg'},
+               {title : '十一',image : './assets/images/k.png'},
+               {title : '十二',image : './assets/images/l.jpg'},
+               {title : '十三',image : './assets/images/m.png'},
+               {title : '十四',image : './assets/images/n.png'}
+           ],
+   //        items : [{
+   //            title : '第一个',
+   //            image : './assets/images/0.jpg',
+   //            target : 'http://www.qq.com'
+   //        },{
+   //            title : '第二个',
+   //            image : './assets/images/1.jpg',
+   //            target : 'http://www.baidu.com'
+   //        },{
+   //            title : '第三个',
+   //            image : './assets/images/2.jpg',
+   //            target : 'http://www.baidu.com'
+   //        },{
+   //            title : '第四个',
+   //            image : './assets/images/3.jpg',
+   //            target : 'http://www.baidu.com'
+   //        }]
+       });
+
+
+        let Slider = require('StaticSlider'),
+            wp2 =  document.getElementById('wrapper2'),
+            ss2 = new Slider(wp2,{
+               contentStyles : {
+                   type : 'single',
+                   config : {      //选定风格的相关特定配置项，
+                       mainCardWidth : 718,
+       //                mainCardHeight : 300,
+                   }
+               },
+               navStyles : {
+                  type : 'disc', //thumb(default)|title|disc|none
+                   showPrevAndNext :true//'false' to default.
+               },
+               customizeClass : 'lol-slider',
+       //        showPrevAndNext : true,
+               autoPlay : false,
+               duration : 500,
+               delay : 3000,
+               onItemClick : function(e, item, index, ele){
+                   console.log('on item click.', item, index, ele);
+               },
+               items : [{
+                   title : '第一个',
+       //            image : './assets/images/a.jpg',
+                   video : 'http://www.w3schools.com/tags/movie.mp4'
+               },{
+                   title : '第二个',
+                   image : './assets/images/b.jpg',
+               },{
+                   title : '第三个',
+                   image : './assets/images/c.jpg',
+               },{
+                   title : '第四个',
+                   image : './assets/images/d.jpg',
+                   target : 'http://www.baidu.com'
+               }]
+        });
+```
+
+
+#### 2016/05/20修改记录：
++ 去jQuery
++ 增加支持CommonJS规范（原来只支持AMD/CMD）
++ options.showPrevAndNext 改为options.contStyles.showPrevAndNext
++ 支持navigator items上的单击事件。可以通过return false来阻止点击缩略图跳转到对应帧。
++ 支持视频选项。

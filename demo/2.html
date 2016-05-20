@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test tgp slider.</title>
+    <script src="../dist/StaticSlider.js"></script>
+    <style>
+        html,body{padding:0;margin:0;widtth:100%;height:100%;}
+        .wp{ margin-left:100px; margin-top: 50px ;}
+        #wrapper1, #wrapper2,#wrapper3,#wrapper4,#wrapper5,#wrapper6,#wrapper7{width:80%;min-width:718px;height:218px;background: #CCC;}
+        /*#wrapper2{width : 20%;}*/
+        /*#wrapper6{height: auto;}*/
+
+    </style>
+</head>
+<body>
+    <h1>一些demo：</h1>
+    <div id="wrapper1" class="wp"></div>
+
+    <div id="wrapper2" class="wp"></div>
+
+    <!--<h1>一个复杂的例子：</h1>-->
+    <!--<div id="content2"></div>-->
+<script>
+
+    var ss1 = new StaticSlider(document.getElementById('wrapper1'),{
+        contentStyles : {
+            type : 'three-cards', //3张卡片切换的风格,默认为单张从左往右切换效果
+            config : {      //选定风格的相关特定配置项，
+                mainCardWidth : 718,
+//                mainCardHeight : 300,
+            },
+            showPrevAndNext : true
+        },
+        navStyles : {
+            type : 'title', //thumb(default)|title|disc
+            showPrevAndNext : false//'false' to default.
+        },
+//        customizeClass : 'lol-slider',
+        autoPlay : false,
+        duration : 200,
+        delay : 3000,
+        onItemClick : function(e, item, index, ele){
+//            console.log('on item click.', item, index, ele);
+        },
+        beforeSlide : function(item, index){
+//            console.log("before slide", index, item);
+        },
+        afterSlide : function(item, index){
+//            console.log("after slide", index, item);
+        },
+        items : [
+            {title : '一',image : './assets/images/a.jpg'},
+            {title : '二',image : './assets/images/b.jpg'},
+            {title : '三',image : './assets/images/c.jpg'},
+            {title : '四',image : './assets/images/d.jpg'},
+            {title : '五',image : './assets/images/e.jpg'},
+            {title : '六',image : './assets/images/f.png'},
+            {title : '七',image : './assets/images/g.jpeg'},
+            {title : '八',image : './assets/images/h.jpg'},
+            {title : '九',image : './assets/images/i.png'},
+            {title : '十',image : './assets/images/j.jpg'},
+            {title : '十一',image : './assets/images/k.png'},
+            {title : '十二',image : './assets/images/l.jpg'},
+            {title : '十三',image : './assets/images/m.png'},
+            {title : '十四',image : './assets/images/n.png'}
+        ],
+//        items : [{
+//            title : '第一个',
+//            image : './assets/images/0.jpg',
+//            target : 'http://www.qq.com'
+//        },{
+//            title : '第二个',
+//            image : './assets/images/1.jpg',
+//            target : 'http://www.baidu.com'
+//        },{
+//            title : '第三个',
+//            image : './assets/images/2.jpg',
+//            target : 'http://www.baidu.com'
+//        },{
+//            title : '第四个',
+//            image : './assets/images/3.jpg',
+//            target : 'http://www.baidu.com'
+//        }]
+    });
+
+    var ss2 = new StaticSlider(document.getElementById('wrapper2'),{
+        contentStyles : {
+            type : 'single',
+            config : {      //选定风格的相关特定配置项，
+                mainCardWidth : 718,
+//                mainCardHeight : 300,
+            }
+        },
+        navStyles : {
+           type : 'disc', //thumb(default)|title|disc|none
+            showPrevAndNext :true//'false' to default.
+        },
+        customizeClass : 'lol-slider',
+//        showPrevAndNext : true,
+        autoPlay : false,
+        duration : 500,
+        delay : 3000,
+        onItemClick : function(e, item, index, ele){
+            console.log('on item click.', item, index, ele);
+        },
+        items : [{
+            title : '第一个',
+//            image : './assets/images/a.jpg',
+            video : 'http://www.w3schools.com/tags/movie.mp4'
+        },{
+            title : '第二个',
+            image : './assets/images/b.jpg',
+        },{
+            title : '第三个',
+            image : './assets/images/c.jpg',
+        },{
+            title : '第四个',
+            image : './assets/images/d.jpg',
+            target : 'http://www.baidu.com'
+        }]
+    });
+
+</script>
+</body>
+</html>

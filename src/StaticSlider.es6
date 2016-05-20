@@ -5,15 +5,12 @@
  * @author : beanmao@tencent.com
  * @date : 2016/3/16
  */
-;;;
-(function(window){
-    'use strict'; 
-    // if(!window.jQuery){
-    //     return console.error('jQuery need.');
-    // }
+;
+!function(window, undefined){
+    'use strict';
 
     // TODO:这个方法是给gulp构建工具使用的,目的是静态引入目标css文件作为字符串使用，INCLUDE_FILE是供gulp plugin使用的方法
-    const cssString = INCLUDE_FILE("inner-styles.css");
+    const cssString = INCLUDE_FILE("./inner-styles.css");
     insertStyleSheets(cssString);
 
     //枚举出所有UI风格对应的class name.
@@ -36,7 +33,7 @@
      * @param options {Object}
      * @constructor
      */
-    function StaticSlider(wrapper, options){
+    function Slider(wrapper, options){
         //参数
         let _defaults = {
 
@@ -47,36 +44,43 @@
                 //    mainCardWidth : 360,
                 //    mainCardHeight : 200,
                 //}
+                //是否展示前后导航的按钮（如果条件满足）
+                showPrevAndNext : true,
+                //鼠标hover到item上暂停自动播放
+                pauseWhenHoverItem : true
             },
 
             //导航栏（如缩略图）UI风格相关
             navStyles : {
-                type : 'thumb', //tab切换的风格，默认thumb缩略图模式。可选'none'/'thumb'/'title'/'disc'
-                showPrevAndNext : false
+                //tab切换的风格，默认thumb缩略图模式。可选'none'/'thumb'/'title'/'disc'
+                type : 'thumb', 
+                //导航栏是否需要左右箭头
+                showPrevAndNext : false,
+                //鼠标hover到缩略图上时，是否滑到对应item
+                slideWhenHoverItem : false
             },
-            showPrevAndNext : true, //是否展示前后导航的按钮（如果条件满足）
-
+            
             //轮播执行的相关参数
             autoPlay : true,        //是否自动播放
-            pauseOnHoverItem : true,//鼠标hover到item上暂停自动播放
-            slideOnHoverNav : false,//鼠标hover到缩略图上时，是否滑到对应item
             startAt : 0,            //初始化展示第几个item，默认第一个
-            consistent : true,      //是否首尾相连：最后一个item的next无缝连接第一个位置；默认true。TODO:暂只支持true
             duration : 500,         //轮播过程持续时间
             delay : 3000,           //轮播结束后到下次开始的延迟时间
             easing : 'ease-out',    //翻页切换的timing-function，默认'ease-in',建议不赋值。同css transition-timing-function.，支持自定义cubic-bezier.
 
-            //每个item的公共点击行为，如数据上报等。this为<li>的element
-            onItemClick : function(e, item, index){},
-
             //发生滑动之前的回调
             beforeSlide : function(item, index){},
 
-            //滑动过程中(动画执行过程)
-            onSliding : function(){item, index},
+            //滑动过程中(动画执行过程)TODO:暂未实现
+            onSliding : function(item, index){},
 
             //一个item划过来后，响应的回调
             afterSlide : function(item, index){},
+
+            //每个item的公共点击行为，如数据上报等。this为<li>的element
+            onItemClick : function(e, item, index){},
+
+            //导航栏元素（取决于navStyle的type形态）的click事件
+            onNavItemClick : function(e, item, index){},
 
             //轮播项 {Array}.
             items : []
@@ -106,7 +110,7 @@
         this.wrapper = wrapper;
 
         //当前实例的唯一ID
-        this.id = `TGP_slider_${StaticSlider.instances.length + 1}`;
+        this.id = `TGP_slider_${Slider.instances.length + 1}`;
 
         //定义slider的当前状态（仅内部可写）
         this._status = "stop";
@@ -119,7 +123,7 @@
 
         // 插入动态class（值需要计算或者配置的），非定值。
         const cardWidth = options.contentStyles.config.mainCardWidth,
-            cardHeight = $(wrapper).height();
+            cardHeight = wrapper.offsetHeight;
 
         insertStyleSheets(`
             #${this.id}.tgp-slider li{transition:${this.transition_string};left:50%;width:${cardWidth}px;margin-left:-${cardWidth/2}px;}
@@ -148,14 +152,14 @@
             this.run();
         }
 
-        StaticSlider.instances.push(this);
+        Slider.instances.push(this);
     }
 
-    StaticSlider.prototype = {
+    Slider.prototype = {
         /**
          * 还原构造器
          */
-        constructor : StaticSlider,
+        constructor : Slider,
 
         /**
          * 当前slider实例的唯一标记
@@ -214,7 +218,7 @@
          * 支持两种调用方式：setItemData(liA, 2);setItemData([liA, 2], [liB, 3], [liC, 5],...);
          * @param liEle
          * @param itemIndex
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         setItemData : function (liEle, itemIndex){
             //多项合并模式调用
@@ -227,37 +231,53 @@
             }
             //防止越界
             itemIndex = (itemIndex + this.itemsSize) % this.itemsSize;
-            var item = this.options.items[itemIndex];
-            //格式是图片或者自定义html
-            if(item.image){
-                //liEle.find('img').attr('src', item.image);
-                liEle.find('.tgp-figure').css('background-image', `url(${item.image})`);
-            }else if(item.html){
-                liEle.html(item.html);
+            let item = this.options.items[itemIndex];
+
+            //格式是图片/视频/自定义html
+            let aLink = liEle.firstElementChild;
+            switch(true){
+                case 'image' in item:
+                    aLink.style.backgroundImage = `url(${item.image})`;
+                    aLink.innerHTML = '';
+                    break;
+                case 'video' in item:
+                    aLink.style.backgroundImage = 'none';
+                    aLink.innerHTML = `
+                        <video width="100%" height="100%" >
+                            <source src="${item.video}" type="video/mp4">
+                            Your browser does not support the video tag with mp4 type.
+                        </video>`;
+                    break;
+                case 'html' in item:
+                    // TODO:暂不支持
+                    liEle.innerHTML = item.html;
+                    break;
+                default : break;
             }
-            //如果是打开目标链接，直接写进href即可。
-            var aLink = liEle.children('a').attr("data-index" , itemIndex);
-            //console.log(itemIndex, item.target);
-            if(item.target){
-                aLink.attr({
-                    "href" : item.target,
-                    "data-type" : 'link'
-                });
-            }else{
-                aLink.attr("data-type", 'event');
-            }
+
+            aLink.dataset["index"] = itemIndex;
+            /**********    这里不需要再进行类型判断，而统一在事件执行的时候去检查。     *********/
+            // if(item.target){
+            //     // aLink.setAttribute("href", item.target);
+            //     // aLink.setAttribute("data-type", 'link');
+            //     aLink.href = item.target;
+            //     aLink.dataset["type"]  = 'link';
+            // }else{
+            //     // aLink.setAttribute("data-type", 'event');
+            //     aLink.dataset["type"]  = 'event';
+            // }
             return this;
         },
 
         /**
          * 设置隐藏的两个边界li的数据，由于已经有currentIndex和li.className来记录当前态，
          * 因此两个侧边的li元素和对应数据都是确定的，不需要传参.
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         resetHiddenData : function (){
-            var viewport = $(this.elements.viewport),
-                leftHiddenLi = viewport.find('.left-hider'),
-                rightHiddenLi = viewport.find('.right-hider');
+            var vp = this.elements.viewport,
+                leftHiddenLi = $('.left-hider', vp),
+                rightHiddenLi = $('.right-hider', vp);
             return this.setItemData(
                 [leftHiddenLi, this.currentIndex - 2],
                 [rightHiddenLi, this.currentIndex + 2]
@@ -267,7 +287,7 @@
         /**
          * 开始（继续）执行轮播动作
          * @param {Number} index 从第几帧开始播放，默认从之前停止的索引位置继续
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         run : function(){
             //console.log("running");
@@ -281,7 +301,7 @@
 
         /**
          * 暂停播放
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         pause : function(){
             window.clearTimeout(this._auto_play_timer);
@@ -292,7 +312,7 @@
         /**
          * 停止（暂停）轮播动作
          * @param reset {Boolean} 是否重置到初始位置
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         stop : function(reset){
             window.clearTimeout(this._auto_play_timer);
@@ -306,7 +326,7 @@
         /**
          * 跳转到指定的索引序号(sourceItem#size范围内)
          * @param {Number} index 目标位置，注意，index的值有可能越界，超出itemsSize。动画执行的方向取决于index - currIndex是否>0。
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         slideTo : function(index){
             //console.log("slideTo:", index, this.currentIndex);
@@ -339,10 +359,12 @@
                     slider._current_index = (slider.currentIndex + 1 + slider.itemsSize) % slider.itemsSize;
 
                     deliver(leftHider, 'right-hider');
-                    lefter.removeClass().addClass('left-hider');
-                    current.removeClass().addClass('lefter');
-                    righter.removeClass().addClass('current');
-                    rightHider.removeClass().addClass('righter');
+                    resetClassName([
+                        [lefter, 'left-hider'],
+                        [current, 'lefter'],
+                        [righter, 'current'],
+                        [rightHider, 'righter']
+                    ]);
 
                     //如果中间有多步过渡，嵌套调用函数体；否则就表示当前就到了目标位置，那么判断是否需要执行afterSlide的回调
                     if(delta - 1 > 0){
@@ -350,19 +372,25 @@
                     }else{
                         var _after = slider.options.afterSlide,
                             _index = slider.currentIndex;
-                        _after && righter.one('transitionend', function(){
-                            _after.call(slider, slider.options.items[_index], _index);
-                        });
+                        if(_after){
+                            bindEvent(righter, 'transitionend', function _end(){
+                                let item = slider.options.items[_index];
+                                _after.call(slider, item, _index);
+                                righter.removeEventListener('transitionend', _end);
+                            });
+                        }
                     }
 
                 }else if(delta < 0){//反向（从右往左滑动）
                     //更新私有变量，slider.currentIndex为只读属性
                     slider._current_index = (slider.currentIndex - 1 + slider.itemsSize) % slider.itemsSize;
 
-                    leftHider.removeClass().addClass('lefter');
-                    lefter.removeClass().addClass('current');
-                    current.removeClass().addClass('righter');
-                    righter.removeClass().addClass('right-hider');
+                    resetClassName([
+                        [leftHider, 'lefter'],
+                        [lefter, 'current'],
+                        [current, 'righter'],
+                        [righter, 'right-hider']
+                    ]);
                     deliver(rightHider, 'left-hider');
 
                     //如果中间有多步过渡，嵌套调用函数体；否则就表示当前就到了目标位置，那么判断是否需要执行afterSlide的回调
@@ -371,59 +399,62 @@
                     }else{
                         var _after = slider.options.afterSlide,
                             _index = slider.currentIndex;
-                        _after && lefter.one('transitionend', function(){
-                            _after.call(slider, slider.options.items[_index], _index);
-                        });
+                        if(_after){
+                            bindEvent(lefter, 'transitionend', function _end(){
+                                _after.call(slider, slider.options.items[_index], _index);
+                                lefter.removeEventListener('transitionend', _end);
+                            });
+                        }
                     }
 
                 }
 
-                //更新两侧两个隐藏<li>的数据
+                // 更新两侧两个隐藏<li>的数据
                 slider.resetHiddenData();
 
-                //更新导航栏的当前态UI
-                $(slider.elements.navigator)
-                    .find("a")
-                    .removeClass('cur')
-                    .filter(`a[data-index="${slider.currentIndex}"]`)
-                    .addClass('cur');
-
-                ////如果配置有afterSlide事件，那么此时触发
-                //var _after = slider.options.afterSlide;
-                //if(typeof _after === "function"){
-                //    _after.call(slider, slider.options.items[slider.currentIndex], slider.currentIndex);
-                //}
+                // 更新导航栏的当前态UI
+                // TODO:Array.from 在qbblink上还不支持
+                // let linkElements = Array.from($all("a", slider.elements.navigator));
+                let linkElements = [].slice.call($all("a", slider.elements.navigator), 0);
+                linkElements.forEach(function(linker){
+                    linker.className = "";
+                    if(linker.dataset['index']+"" === slider.currentIndex+""){
+                        linker.className = "cur";
+                    }
+                });
             }
 
             //按照classname获取li
             function getLi(className){
-                var vp = $(slider.elements.viewport);
-                return vp.find(`li.${className}`);
+                var vp = slider.elements.viewport;
+                return $(`li.${className}`, vp);
             }
 
             //将某个li无动画过渡直接变换到另一个状态
-            function deliver(jqEle, targetClassName){
-                jqEle
-                    .css({
-                        "transition" : 'none',
-                        "visibility" : 'hidden'
-                    })
-                    .removeClass()
-                    .addClass(targetClassName);
+            function deliver(ele, targetClassName){
+                let eleStyle = ele.style;
+                eleStyle['transition'] = 'none';
+                eleStyle['visibility'] = 'hidden';
+                ele.className = targetClassName;
 
                 setTimeout(function(){
-                    jqEle.css({
-                        "transition" : slider.transition_string,
-                        "visibility" : 'visible'
-                    });
+                    eleStyle['transition'] = slider.transition_string;
+                    eleStyle['visibility'] = 'visible';
                 }, 0);
+            }
+
+            //清除掉指定element的className，再赋值。
+            function resetClassName(list){
+                list.forEach(function(setting){
+                    setting[0].className = setting[1];
+                });
             }
             return this;
         },
 
         /**
          * 后退一个单位
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         slideToPrev : function(){
             return this.slideTo(this.currentIndex - 1);
@@ -431,7 +462,7 @@
 
         /**
          * 前进一个单位
-         * @returns {StaticSlider}
+         * @returns {Slider}
          */
         slideToNext : function(){
             return this.slideTo(this.currentIndex + 1);
@@ -439,9 +470,9 @@
     };
 
     //实例集合
-    StaticSlider.instances = [];
+    Slider.instances = [];
 
-    //---------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------
 
     /**
      * 根据参数生成基本的html骨架结构
@@ -458,11 +489,11 @@
                 <div tag="prev" class="slide-btn-pre" style="display: none;" href="#"></div>
                 <div tag="next" class="slide-btn-next" style="display: none;" href="#"></div>
                 <ul tag="viewport" class="slider-viewport">
-                    <li class="left-hider"><a class="tgp-figure" href="#"><!--img class="ads-img"--></a></li>
-                    <li class="lefter"><a class="tgp-figure" href="#"><!--img class="ads-img"--></a></li>
-                    <li class="current"><a class="tgp-figure" href="#"><!--img class="ads-img"--></a></li>
-                    <li class="righter"><a class="tgp-figure" href="#"><!--img class="ads-img" --></a></li>
-                    <li class="right-hider"><a class="tgp-figure" href="#"><!--img class="ads-img"--></a></li>
+                    <li class="left-hider"><a class="tgp-figure" href="#"></a></li>
+                    <li class="lefter"><a class="tgp-figure" href="#"></a></li>
+                    <li class="current"><a class="tgp-figure" href="#"></a></li>
+                    <li class="righter"><a class="tgp-figure" href="#"></a></li>
+                    <li class="right-hider"><a class="tgp-figure" href="#"></a></li>
                 </ul>
                 <div tag="nav_area" class="focusthumb-wp" style="display: none;">
                     <div tag="nav_prev" class="btn-pre" style="display: none;" href="#"></div>
@@ -476,9 +507,15 @@
         //生成缩略图（如果需要）
         function generateThumbs(options){
             return options.items.map(function(item, index){
+                //缩略图
+                let thumbHtml = '',
+                    thumb = item.thumb || item.image;
+                if(thumb){
+                    thumbHtml = `<img src="${thumb}" />`
+                }
                 return `
                     <a href="#" hidefocus data-index="${index}">
-                        <img src="${item.thumb || item.image}" />
+                        ${thumbHtml}    
                         <span>${item.title||""}</span>
                     </a>`;
             }).join('');
@@ -494,43 +531,48 @@
             elements = slider.elements;
 
         //设置初始数据(包含两个隐藏li)
-        var currLi = $(elements.viewport).find('.current'),
+        var currLi = $('.current', elements.viewport),
+            ul = currLi.parentElement,
             currIndex = slider.currentIndex;
 
         slider.setItemData(
-            [currLi,                        currIndex],
-            [currLi.siblings(".lefter"),    currIndex - 1],
-            [currLi.siblings(".righter"),   currIndex + 1],
-            [currLi.siblings(".left-hider"),currIndex - 2],
-            [currLi.siblings(".right-hider"),currIndex + 2]
+            [currLi,                currIndex],
+            [$("li.lefter", ul),    currIndex - 1],
+            [$("li.righter", ul),   currIndex + 1],
+            [$("li.left-hider", ul),currIndex - 2],
+            [$("li.right-hider",ul),currIndex + 2]
         );
 
         //设置导航当的当前态
-        $(slider.elements.navigator).find(`a[data-index="${currIndex}"]`).addClass('cur');
+        let navWrapper = slider.elements.navigator;
+        $(`a[data-index="${currIndex}"]`, navWrapper).classList.add('cur');
 
         //需要展示前进后退箭头按钮，则展示出来，并绑定事件
-        if(options.showPrevAndNext){
+
+        if(options.contentStyles.showPrevAndNext) {
             var prev = elements.prevBtn,
                 next = elements.nextBtn,
                 delayThreshold = 300;
-            //点击左右导航箭头，防止用户频繁点击，设置了时间阈值(300ms)
-            $(prev).show().click(function(){
+            prev.style.display = '';
+            bindEvent(prev, 'click', function () {
                 slider.stop();
-                if(!this.timer){
+                if (!this.timer) {
                     this.timer = 0;
                 }
-                if(Date.now() - this.timer > delayThreshold){
+                if (Date.now() - this.timer > delayThreshold) {
                     slider.slideToPrev();
                     this.timer = Date.now();
                 }
                 return false;
             });
-            $(next).show().click(function(){
+
+            next.style.display = '';
+            bindEvent(next, 'click', function () {
                 slider.stop();
-                if(!this.timer){
+                if (!this.timer) {
                     this.timer = 0;
                 }
-                if(Date.now() - this.timer > delayThreshold){
+                if (Date.now() - this.timer > delayThreshold) {
                     slider.slideToNext();
                     this.timer = Date.now();
                 }
@@ -538,98 +580,112 @@
             });
         }
 
-        //如果需要支持hover到item上时暂停播放
-        if(options.pauseOnHoverItem){
-            $(elements.viewport).bind({
-                'mouseenter' : function(){
-                    //如果当前正在播放中，那么停止播放，并将状态值改为暂停；如果是非播放状态，则不管。
-                    if(slider.status === "playing"){
-                        slider.pause();
-                    }
-                    return false;
-                },
-                'mouseleave' : function(){
-                    //如果当前正在暂停中，那么立即恢复播放。
-                    if(slider.status === "pause"){
-                        slider.run();
-                    }
-                    return false;
+        //hover到item上时暂停轮播
+        if(options.contentStyles.pauseWhenHoverItem){
+            bindEvent(elements.viewport, 'mouseenter', function(){
+                //如果当前正在播放中，那么停止播放，并将状态值改为暂停；如果是非播放状态，则不管。
+                if(slider.status === "playing"){
+                    slider.pause();
                 }
+                return false;
+            });
+            bindEvent(elements.viewport, 'mouseenter', function(){
+                //如果当前正在暂停中，那么立即恢复播放。
+                if(slider.status === "pause"){
+                    slider.run();
+                }
+                return false;
             });
         }
 
         //每个item的点击行为处理
-        $(slider.elements.viewport).find('li').on('click', 'a', function(e){
-            var a = $(this),
-                linkType = a.data("type"),
+        let itemElements = $all('li', slider.elements.viewport);
+        bindEvent(itemElements, 'click', 'a', function(e){
+            var a = this,
+                //判断是否需要阻止冒泡、阻止默认行为
+                returnValue = false,
                 li = a.closest('li'),
-                index = a.attr('data-index')*1,//index = a.data('index')*1,
-                item = slider.options.items[index],
-                returnValue = false;
-            //如果点击到的目标item不处在当前态，那么激活该item
-            if(index !== slider.currentIndex){
+                index = a.dataset['index']*1,
+                item = slider.options.items[index];
+
+            //如果点击的是当前item，跳转目标或者执行事件；如果不是当前元素则slide到对应item。
+            if(index === slider.currentIndex){
+                if(item.target){
+                    a.target = '_blank';
+                    a.href = item.target;
+                    returnValue = true;
+                }else{
+                    //如果有单独的事件，先执行。
+                    let callback = item && item.onClick;
+                    callback && callback.call(slider, e, item, li, index);
+                    //综合事件
+                    options.onItemClick && options.onItemClick.call(slider, e, item, index, li);
+
+                    returnValue = false;
+                }
+            }else{
+                //如果点击到的目标item不处在当前态，那么激活该item
                 //TODO:这里暂时没想到好的办法，先用class hack一下。直接用slideTo(index)体验上有问题。
                 //slider.slideTo(index);
-                if(li.hasClass('righter')){
+                let clsList = li.classList;
+                if(clsList.contains('righter')){
                     slider.slideToNext();
-                }else if(li.hasClass('lefter')){
+                }else if(clsList.contains('lefter')){
                     slider.slideToPrev();
                 }
-                return returnValue;
-            }
-            if(linkType === "link"){
-                a.attr({
-                    "target" :  '_blank',
-                    "href" : item.target
-                });
-                returnValue = true;
-            }else if(linkType === "event"){
-                //非外链的形式，就找到绑定的onClick事件执行
-                var callback = item && item.onClick;
-                callback && callback.call(slider, e, item, li.get(0), index);
-                //console.log('onItemClick : index ' + index);
                 returnValue = false;
             }
-            options.onItemClick && options.onItemClick.call(slider, e, item, index, li.get(0));
-            return returnValue;
+
+            // 如果设定为false,那么阻止默认行为和事件传递。
+            if(!returnValue){
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
         });
 
         //如果需要导航栏，那么点击导航栏栏目，默认slide到对应item
-        var nav = options.navStyles,
+        let navStyles = options.navStyles,
             navEle = elements.navigator;
 
-        if(nav.type !== 'none'){
-            var navPrev = elements.navPrevBtn,
-                navNext = elements.navNextBtn;
+        if(navStyles.type !== 'none'){
 
-            //点击导航栏选项，slide到对应的item主界面
-            $(navEle).show().on('click', 'a', function(){
-                var index = $(this).data("index");
-                slider.stop().slideTo(index);
+            // 点击导航栏选项，slide到对应的item主界面，（可选单击事件）
+            navEle.style.display = '';
+            bindEvent(navEle, 'click', 'a', function(e){
+                let index = this.dataset["index"]*1,
+                    navClickFn = options.onNavItemClick;
+                // 如果定义了缩略图的点击事件，那么判断返回值是否显示的等于'false'，如果是那么阻止slide to target index page.
+                if(typeof navClickFn === "function"){
+                    let navItemClickReturnValue = navClickFn.call(null, e, options.items[index], index);
+                    if(navItemClickReturnValue !== false){
+                        slider.stop().slideTo(index);
+                    }
+                }else{
+                    slider.stop().slideTo(index);
+                }
                 return false;
             });
-            //是否支持鼠标移到nav上就立即slide到对应item上
-            if(options.slideOnHoverNav){
-                $(navEle).find('a').bind({
-                    'mouseenter' : function(){
-                        var index = $(this).data("index");
-                        slider.stop().slideTo(index);
-                        return false;
-                    },
-                    'mouseleave' : function(){
-                        slider.run();
-                        return false;
-                    },
+
+            //【配置项】支持鼠标移到navigator上就立即slide到对应item上
+            if(options.slideWhenHoverItem){
+                bindEvent(navEle, 'mouseenter', 'a', function(){
+                    var index = this.dataset["index"]*1;
+                    slider.stop().slideTo(index);
+                    return false;
+                });
+                bindEvent(navEle, 'mouseenter', 'a', function(){
+                    slider.run();
+                    return false;
                 });
             }
 
-            if(nav.showPrevAndNext){
-                $(navPrev).show().click(function(){
-                    slider.slideToPrev();
-                });
-                $(navNext).show().click(function(){
-                    slider.slideToNext();
-                });
+            //【配置项】导航栏区的左右箭头导航
+            if(navStyles.showPrevAndNext){
+                //TODO:暂不支持。
+                console.warn("暂不支持导航栏区域左右箭头");
+                // let navPrev = elements.navPrevBtn,
+                //     navNext = elements.navNextBtn;
             }
         }
     }
@@ -638,18 +694,18 @@
      * 动态插入CSS工具方法
      * @param stylesheetCSString {String} <style>元素的内容
      */
-    function insertStyleSheets(CSString){
+    function insertStyleSheets(cssString){
         const prefix = '/**************** insert by slider *****************/';
-        CSString = prefix + '\r\n' + CSString;
+        cssString = prefix + '\r\n' + cssString;
         var styleEle = $("#___slider_style");
         if(styleEle){
-            styleEle.appendChild(document.createTextNode(CSString));
+            styleEle.appendChild(document.createTextNode(cssString));
         }else{
             styleEle = document.createElement('style');
             styleEle.type = "text/css";
             styleEle.media = 'screen';
             styleEle.id = "___slider_style";
-            styleEle.appendChild(document.createTextNode(CSString));
+            styleEle.appendChild(document.createTextNode(cssString));
             $('head').appendChild(styleEle);
         }
     }
@@ -680,38 +736,67 @@
      * 自定义的一个绑定事件的方法
      * @param {NodeList|Element} ele 要绑定事件的元素
      * @param {String} eName 事件名
-     * @param {DOMString} agent 代理器
+     * @param {String} [agent] 代理dom的queryString， 可选.
      * @param {Function} fn 回调函数
      */
     function bindEvent(ele, eName, agent, fn){
-        if(ele instanceof NodeList){
+        if(ele instanceof NodeList || ele instanceof HTMLCollection){
             [].forEach.call(ele, function(el){
                 bindEvent(el, eName, agent, fn);
             });
             return true;
         }
-        if(typeof agent === "function"){
-            el.addEventListener(eName, agent);
-        }else if(typeof agent === "string"){
-            el.addEventListener(eName, function(e){
-                if(e.target.matches(agent)){
-                    fn.call(e.target, e);
-                }
-            });
-        }else{
-            return false;
+        //省略了agent参数的模式
+        if(arguments.length === 3 && typeof agent === "function"){
+            return bindEvent(ele, eName, null, agent);
         }
+        ele.addEventListener(eName, function(e){
+            // console.log(ele, eName, agent, fn)
+            // 针对是否使用了代理分别处理
+            if(agent){
+                var target = e.target;
+                while(ele.contains(target)){
+                    if(target.matches(agent)){
+                        let retturnValue = fn.call(target, e);
+                        //只hack返回值绝对等于'false'。
+                        if(retturnValue === false){
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }
+                        return true;
+                    }else{
+                        target = target.parentElement;
+                    }
+                }
+                //走到这里表示代理的元素没有找到，绑定失败。
+                return false;
+            }else{
+                let retturnValue = fn.call(this, e);
+                //只hack返回值绝对等于'false'。
+                if(retturnValue === false){
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                return true;
+            }
+        });
     }
-    //---------------------------------------------------------------------------------
 
-    //兼容模块化写法
-    if(typeof define === "function" && (define.cmd||define.amd)){
+
+    //------------------------------------------------------------------------------------------------
+    //CommonJS mode:
+    if(typeof module === "object" && typeof module.exports === "object"){
+        module.exports = Slider;
+    }else if(typeof define === "function" && (define.amd||define.cmd)){
+        // AMD(RequireJS) and CMD(SeaJS) mode:
         define(function (require, exports, module) {
-            return StaticSlider;
+            return Slider;
         });
     }else{
-        window.StaticSlider = StaticSlider;
+        //normal script file load mode: <script src="***">
+        window.StaticSlider = Slider;
     }
-})(window, undefined);
+}(window, undefined);
 
-
+// ES6 Module.
+// export { Slider as StaticSlider };
