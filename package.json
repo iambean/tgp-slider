@@ -1,6 +1,6 @@
 {
   "name": "tgp-slider",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A slider component for TGP.",
   "main": "./dist/StaticSlider.js",
   "devDependencies": {
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/lodash/lodash"
+    "url": "github.com/iambean/slider.git"
   },
   "author": "beanmao@tencent.com",
   "license": "MIT"
