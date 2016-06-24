@@ -1,5 +1,87 @@
-/*----------Component public styles:----------*/
-/*前一项 后一项button*/
+/* --------------------------------------  轮播基本样式 -------------------------------------- */
+.tgp-slider {position: relative;/*overflow:hidden;*/height: 100%;width: 100%;}
+.tgp-slider ul{padding:0;margin:0; list-style: none;left:0;top:0;position:relative;width:100%;height:100%;}
+.tgp-slider ul.slider-viewport{position:relative;width:100%;height:100%;overflow:hidden;}
+.tgp-slider li{z-index:1;padding:0;margin:0;text-align: center;vertical-align: top;position:absolute;transform:none;}
+.tgp-slider .left-hider{z-index:1;}
+.tgp-slider .lefter{z-index:3;}
+.tgp-slider .current{z-index:5;}
+.tgp-slider .righter{z-index:3;}
+.tgp-slider .right-hider{z-index:1;}
+.tgp-slider .tgp-figure{display: inline-block; margin: 0 auto;border:none;vertical-align: top;font-size: 0;background-position: 50% 50%;background-repeat:no-repeat;}
+.tgp-slider .tgp-figure:before { box-shadow: none;}
+.tgp-slider .tgp-figure img{width : 100%;}
+/*轮播图片如果是视频*/
+.tgp-slider .tgp-figure.video{position: relative;}
+.tgp-slider .tgp-figure.video:before{content: "";position: absolute;width: 86px;height: 86px;left: 50%;top: 50%;margin-left: -43px;margin-top: -43px;background-image:url(./assets/images/icon-player.png); }
+
+.tgp-slider li{width : 100%;height:100%;}
+.tgp-slider .tgp-figure{width : 100%;height:100%;}
+
+/* -------------------------  轮播风格:[单张图左右平移]---默认效果 -------------------------- */
+.tgp-slider.translation .left-hider{transform:translate(-200%, 0);}
+.tgp-slider.translation .lefter{transform:translate(-100%,0);}
+.tgp-slider.translation .current{transform:translate(0,0);}
+.tgp-slider.translation .righter{transform:translate(100%,0);}
+.tgp-slider.translation .right-hider{transform:translate(200%, 0);}
+
+/* -------------------------  轮播风格:[淡入淡出] -------------------------------- */
+.tgp-slider.fade li{opacity: 0;}
+.tgp-slider.fade .current{opacity: 1;}
+
+/* -------------------------  轮播风格:[3d切换] -------------------------------- */
+.tgp-slider.slider-3d .left-hider{transform:scale(.6) translate(-200%,0);}
+.tgp-slider.slider-3d .lefter{text-align:left;transform:scale(.8) translate(-80%,0);}
+.tgp-slider.slider-3d .current{transform:scale(1) translate(0,0);}
+.tgp-slider.slider-3d .righter{text-align: right;transform:scale(.8) translate(80%,0);}
+.tgp-slider.slider-3d .right-hider{transform:scale(.6) translate(200%,0);}
+/* 蒙层 */
+.tgp-slider.slider-3d li:not(.current) .tgp-figure:after
+{content: "";background: rgba(0, 0, 0, .8);z-index: 10;position: absolute;top: 0;left: 0;display: block;width: 100%;height: 100%;}
+.tgp-slider.slider-3d .right-hider .tgp-figure:after,
+.tgp-slider.slider-3d .left-hider .tgp-figure:after{background: rgba(0, 0, 0, .9);}
+
+/* -------------------------  轮播图背景:[填满容器](背景图和容器高宽比例不一致时会被截掉) -------------------------------- */
+/*.tgp-slider.cover li{width: 100%!important;height: 100%;left: 0!important;margin: 0!important;}*/
+.tgp-slider.cover .tgp-figure{/*width: 100%;*/ background-size: cover;}
+/*.tgp-slider.cover .tgp-figure:after{background: rgba(0, 0, 0, 0);}*/
+
+/* -------------------------  轮播图背景:[完全展示](背景图和容器高宽比例不一致时会留白) -------------------------------- */
+.tgp-slider.contain .tgp-figure{background-size: contain;}
+
+/* -------------------------  轮播图背景:[多张图] -------------------------------- */
+.tgp-slider.mutliple{overflow: visible;}
+.tgp-slider.mutliple ul{display: -webkit-box;position: relative;}
+.tgp-slider.mutliple ul li { display: -webkit-box; width: 100%; }
+.tgp-slider.mutliple .slider-viewport { position: relative; z-index: 1; overflow: hidden; width: 100%; height: 100%; }
+.tgp-slider.mutliple .slider-viewport li { display: -webkit-box; width: 100%; }
+.tgp-slider.mutliple ul li .tgp-figure {-webkit-box-flex: 1;position: relative;margin-right: 1px;overflow: hidden;width:100%;  }
+.tgp-slider.mutliple ul li .tgp-figure:last-child { margin-right: 0; }
+.tgp-slider.mutliple .slider-viewport .tgp-figure{ display: block; overflow: hidden; background-size: cover; }
+.tgp-slider.mutliple .slider-viewport .tgp-figure-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 5px;
+    fiont-size : 12px;
+    color: rgba(255,255,255,.8);
+    background-color: rgba(0,0,0,.7);
+    cursor: pointer;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: height .2s ease-in-out;
+    cursor: pointer;
+}
+.tgp-slider.mutliple  .slider-viewport .item:hover .tgp-figure-title { white-space: normal; height: 40px; }
+.tgp-slider.mutliple .thumb-gallery{display: none;}
+.tgp-slider.mutliple .focusthumb-wp{margin-top:-5px;}
+
+/* 主区域的prev/next按钮 */
 .tgp-slider .slide-btn-pre, .slide-btn-next{position:absolute;background: rgba(38, 54, 76, 0.20);overflow:hidden;top:50%;width:30px;height:78px;cursor: pointer;
     margin-top:-39px;z-index:10;text-align:center;outline: 1px solid rgba(255, 255, 255, 0.05);outline-offset: -1px; }
 .tgp-slider .slide-btn-pre:hover, .slide-btn-next:hover{ background:rgba(38, 54, 76, 0.40);}
@@ -12,22 +94,35 @@
 .tgp-slider .slide-btn-pre.disabled, .slide-btn-next.disabled{background:rgba(0, 0, 0, 0.2);}
 .tgp-slider .slide-btn-pre.disabled:before, .slide-btn-next.disabled:before{opacity:0.5}
 
-/*thumb缩略图*/
-.tgp-slider .focusthumb-wp{position: relative; width:100%;height:33px;  margin:0 auto;margin-top:-33px; text-align: center;z-index:10;}
-.tgp-slider .focusthumb{width:480px; background:rgba(0, 0, 0, 0.6);
-    position:absolute;top:0;left:50%;margin-left:-240px;z-index:10;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-justify-content:space-between;-webkit-box-pack:justify;}
+/* 导航栏基础样式 */
+.tgp-slider .focusthumb-wp{position: relative; width:100%;height:33px;margin:-33px auto 0;text-align: center;z-index:10;}
+/*thumb缩略图下的前后Button*/
+.tgp-slider .focusthumb-wp{position: relative; width:100%;height:30px;  margin:0 auto;margin-top:-33px; text-align: center;z-index:10;}
+.tgp-slider .focusthumb-wp .slide-btn-pre,
+.tgp-slider .focusthumb-wp .slide-btn-next{height:30px; width:20px; line-height: 30px;margin-top:-15px;}
+.tgp-slider .focusthumb-wp .slide-btn-pre:before,
+.tgp-slider .focusthumb-wp .slide-btn-next:before
+{position: absolute;content: "";width: 8px;height: 8px;display: block;top: 50%;margin-top: -4px;  }
+.tgp-slider .focusthumb-wp .slide-btn-pre:before{margin-left:-3px;}
+.tgp-slider .focusthumb-wp .slide-btn-next:before{margin-right:-3px;}
+
+/* 导航栏:[thumb] */
+.tgp-slider .focusthumb{width:100%; background:rgba(0, 0, 0, 0.6);
+    position:absolute;top:0;left:0;z-index:10;display:-webkit-box;
+    display:-webkit-flex;display:flex;-webkit-justify-content:center;-webkit-box-pack:center;}
+
 .tgp-slider .focusthumb a{display:block;height:27px; width:92px;margin:3px; overflow: hidden;}
 .tgp-slider .focusthumb a img{width:100%; height:100%;}
 .tgp-slider .focusthumb .cur, .tgp-slider .focusthumb a:hover{outline:#fff solid 2px;outline-offset: -1px;}
 
-/*thumb小圆点*/
+/* 导航栏:[disc] */
 .tgp-slider .thumb-dot{display:block; text-align:center; background: none; top:auto;bottom:5px;}
 .tgp-slider .thumb-dot a{width: 8px; height: 8px;display:inline-block; line-height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.6); margin: 0 2px;}
 .tgp-slider .thumb-dot a:hover{background-color: rgba(255,255,255,0.8);outline: none;outline-offset:0;}
 .tgp-slider .thumb-dot a.cur { background-color: #fff; outline: none;outline-offset:0;}
 .tgp-slider .thumb-dot a img,.tgp-slider .thumb-dot a span{display:none;}
 
-/*thumb文字*/
+/* 导航栏:[title] */
 .tgp-slider .thumb-txt{height:33px;line-height: 33px; background: rgba(0, 0, 0, 0.4);}
 .tgp-slider .thumb-txt a{width:20%; line-height: 33px; height:33px;margin: 0 1px 0 0;background: rgba(0, 0, 0, 0.3); text-decoration: none;}
 .tgp-slider .thumb-txt a:last-child{margin-right:0;}
@@ -38,34 +133,17 @@
 .tgp-slider .thumb-txt a.cur,.tgp-slider .thumb-txt a.cur:hover{ background-color:#0095ff;outline: none;outline-offset:0;}
 .tgp-slider .thumb-txt a.cur span,.tgp-slider .thumb-txt a.cur:hover span{  color:#fff;}
 .tgp-slider .thumb-txt a img{display:none;}
-/*     .tgp-slider .thumb-txt a span{display:inline-block;}*/
 
-/*轮播图*/
-.tgp-slider {position: relative;overflow:hidden;height: 100%;width: 100%;}
-.tgp-slider ul{padding:0;margin:0; list-style: none;left:0;top:0;position:relative;width:100%;height:100%;}
-.tgp-slider ul.slider-viewport{position:relative;width:100%;height:100%;}
-.tgp-slider li{padding:0;margin:0;text-align: center;vertical-align: top;position:absolute;}
-.tgp-slider li.left-hider{z-index:1;transform:scale(.6) translate(-200%,0);}
-.tgp-slider li.lefter{z-index:3;text-align:left;transform:scale(.8) translate(-80%,0);}
-.tgp-slider li.current{z-index:5;transform:scale(1) translate(0,0);}
-.tgp-slider li.righter{z-index:3;text-align: right;transform:scale(.8) translate(80%,0);}
-.tgp-slider li.right-hider{z-index:1;transform:scale(.6) translate(200%,0);}
-.tgp-slider .tgp-figure{display: inline-block; margin: 0 auto;border:none;vertical-align: top;font-size: 0;background-size: contain;background-position: 50% 50%;background-repeat:no-repeat;}
-.tgp-slider .tgp-figure:before { box-shadow: none;}
-.tgp-slider .tgp-figure img{width : 100%;}
+/* 导航栏:[title] */
+.tgp-slider .gallery{position: static;width: 100%!important;left: 0!important;margin-left: 0!important;-webkit-justify-content:flex-start;-webkit-box-pack:start;}
+.tgp-slider .gallery a{position: relative;overflow: visible;}
+.tgp-slider .gallery a:before{content: "";position: absolute;left: 50%;margin-left: -4px;top: -13px;width: 0;height: 0;font-size: 0;overflow: hidden;border: 6px solid;border-color: transparent transparent #0095ff transparent;visibility: hidden;}
+.tgp-slider .gallery .cur:before,
+.tgp-slider .gallery a:hover:before{visibility: visible;}
+.tgp-slider .gallery .cur,
+.tgp-slider .gallery a:hover{outline:2px solid #0095ff}
+.tgp-slider .gallery .focusthumb .video:after{content: "";position: absolute;width: 86px;height: 86px;left: 50%;top: 50%;margin-left: -43px;margin-top: -43px;background-image:url(./assets/images/icon-player.png); -webkit-transform:scale(0.3);}
+/*.tgp-slider.gallery .focusthumb-wp .slide-btn-pre,.tgp-slider.gallery  .focusthumb-wp .slide-btn-next{display: block;}*/
 
-/***  蒙层  ***/
-.tgp-slider .righter .tgp-figure:after, .tgp-slider  .lefter .tgp-figure:after,.tgp-slider .right-hider .tgp-figure:after,.tgp-slider .left-hider .tgp-figure:after
 
-{
-    content: "";
-    background: rgba(0, 0, 0, 0.60);
-    z-index: 10;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-.tgp-slider .right-hider .tgp-figure:after,.tgp-slider .left-hider .tgp-figure:after{      background: rgba(0, 0, 0, 0.8);}
+

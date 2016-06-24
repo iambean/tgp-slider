@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test tgp slider.</title>
+    <script src="../dist/StaticSlider-0.5.0.js"></script>
+    <style>
+        html,body{padding:0;margin:0;width:100%;height:100%;}
+        html{background: rgba(140, 136, 115, .5);}
+        h1{font-size: 3em;font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino';text-align: center; white-space: nowrap;}
+        h2{font-family: 'Palatino Linotype', 'Book Antiqua', 'Palatino', serif;background: #b9b9b8;padding: .2em;max-width: 1000px;    white-space: nowrap;}
+        h2 select{font-size: 1em;cursor: pointer;}
+        .wp{margin:0 0 120px 80px}
+        .wp>div{width:80%;/*min-width:718px;*/height:218px;border:1px dashed #cc946a;min-width:200px;}
+
+        #wrapper5 .tgp-slider.cover .tgp-figure{background-color:black;}
+    </style>
+</head>
+<body>
+    <h1>TGP slider demos:</h1>
+
+    <div class="wp">
+        <h2>1)default params.</h2>
+        <div id="wrapper1" style="width:400px;height:150px;"></div>
+    </div>
+
+    <div class="wp">
+        <h2>2)single card with translation effect and covered background image.</h2>
+        <div id="wrapper2" style="height:200px;width:98%;"></div>
+    </div>
+
+    <div class="wp">
+        <h2>3)single card with fade effect and
+            <select id="wp3switcher"><option value="1">contained</option><option value="2">covered(default)</option></select>
+            bg-image. cardWidth not set.
+        </h2>
+        <div id="wrapper3" style="height:160px;"></div>
+    </div>
+
+    <div class="wp">
+        <h2>4)3d slider. contained bg-image and 'cardWidth' has been set.</h2>
+        <div id="wrapper4"></div>
+    </div>
+
+    <div class="wp">
+        <h2>5)normal single card translation effect, with gallery navigator. some items are movie(.mp4).</h2>
+        <div id="wrapper5" style="/*width:640px;*/height:400px;"></div>
+    </div>
+
+    <div class="wp">
+        <h2>6)multiple views in a frame.</h2>
+        <div id="wrapper6" style="height:220px;"></div>
+    </div>
+<script>
+    const items = [
+        {title : '一',image : './assets/images/a.jpg'},
+        {title : '二',image : './assets/images/b.jpg'},
+//        {title : '三',image : './assets/images/c.jpg'},
+        {title : '四',image : './assets/images/d.jpg'},
+        {title : '五',image : './assets/images/e.jpg'},
+        {title : '六',image : './assets/images/f.png'},
+        {title : '七',image : './assets/images/g.jpeg'},
+        {title : '八',image : './assets/images/h.jpg'},
+        {title : '九',image : './assets/images/i.png'},
+        {title : '十',image : './assets/images/j.jpg'},
+        {title : '十一',image : './assets/images/k.png'},
+        {title : '十二',image : './assets/images/l.jpg'},
+        {title : '十三',image : './assets/images/m.png'},
+        {title : '十四',image : './assets/images/n.png'},
+    ];
+
+    const widePics = [
+        {title : '长图1',image : './assets/images/1_1200_200.jpg'},
+        {title : '长图2',image : './assets/images/2_1200_200.jpg'},
+        {title : '长图3',image : './assets/images/3_1200_200.jpg'},
+        {title : '长图3',image : './assets/images/4_1200_200.jpg'}]
+
+    const videos = [
+        {title : '视频',video : './assets/videos/3.mp4',autoPlay : true, poster : './assets/images/m.png'},
+        {title : '视频',video : './assets/videos/5.mp4',autoPlay : true, poster : './assets/images/n.png'},
+        {title : '视频',video : './assets/videos/1.mp4',autoPlay : false, poster : './assets/images/c.jpg'},
+    ];
+
+    //default params.
+    const slider1 = new StaticSlider($('#wrapper1'),{
+        items : items.slice(0, 3)
+    });
+
+    //single card with translation effect and covered background image.
+    const slider2 = new StaticSlider($('#wrapper2'),{
+        contentStyle : {
+            effect : 'translation',
+            background : 'cover',
+            cardWidth : 900
+        },
+        navStyle : {
+            type : 'title'
+        },
+        autoRun : false,
+        items : widePics
+    });
+
+    //single card with fade effect,bg-image style is switchable.
+    const slider3 = new StaticSlider($('#wrapper3'),{
+        contentStyle : {
+            effect : 'fade',
+            background : 'contain',
+//            cardWidth : 520
+        },
+        autoRun : false,
+        items : items.slice(0, 5)
+    });
+    $("#wp3switcher").onchange = function(){
+        var cl = slider3.wrapper.firstElementChild.classList;
+        if(this.value == 1){
+            cl.remove('cover');cl.add('contain');
+        }else{
+            cl.remove('contain');cl.add('cover');
+        }
+    }
+
+    //3d slider.
+    const slider4 = new StaticSlider($('#wrapper4'),{
+        contentStyle : {
+            effect : 'slider-3d',
+            background : 'contain',
+            cardWidth : 718
+        },
+        navStyle:{
+            type : "thumb"
+        },
+        autoRun : false,
+        slideWhenHoverItem : true,
+        items : items.slice(0, 5)
+    });
+
+    // normal single card translation effect, with gallery navigator. some items are movie(.mp4).
+    const slider5 = new StaticSlider($('#wrapper5'),{
+        contentStyle : {
+            effect : 'translation',
+            background : 'cover',
+            cardWidth : 540
+        },
+        navStyle:{
+            type : "gallery"
+        },
+        ownClass : '',
+        autoRun : true,
+        items : videos.concat(items.slice(0, 2)),
+        afterSlide : function(item, index, li){
+            //若当前项是视频，自动播放
+            if(index === this.currentIndex && item.video && item.autoPlay){
+                var videoEle = li.querySelector('video');
+                videoEle.play();
+            }
+        },
+        beforeSlide : function(item, index, li){
+            //若当前项是视频，停止播放
+            if(index === this.currentIndex && item.video){
+                var videoEle = li.querySelector('video');
+                videoEle.currentTime = 0;
+                videoEle.pause();
+            }
+        },
+        onItemClick : function(e, item, index, li){
+            //视频项点击时切换暂停/播放
+            if(item.video){
+                var videoEle = li.querySelector('video');
+                if(videoEle.paused){
+                    videoEle.play();
+                }else{
+                    videoEle.pause()
+                }
+            }else{
+                window.open(item.image);
+            }
+        },
+        onNavButtonClick : function(){
+            console.log(arguments)
+        }
+    });
+
+    //multiple views in a frame.
+    const slider6 = new StaticSlider($('#wrapper6'),{
+        contentStyle : {
+            effect : 'translation',
+            background : 'contain',
+//            cardWidth : 718
+        },
+        autoRun : false,
+        items : [items.slice(0, 2), items.slice(2, 6), items.slice(7,9), items.slice(10,11)],
+        onItemClick : function(){
+            console.log(arguments);
+        }
+    });
+
+    //-----------------------------------------------
+    function $(qstring){
+        return document.querySelector(qstring);
+    }
+</script>
+</body>
+</html>
