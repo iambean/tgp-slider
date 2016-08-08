@@ -75,7 +75,7 @@ Type : `Boolean`
 
 是否展示前后导航的按钮，默认true.
 
-#### navStyles
+#### navStyle
 Type : `Object`
 
 导航部分的样式
